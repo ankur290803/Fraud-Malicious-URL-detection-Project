@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Safety Checker</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 650px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 7px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .high-risk {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .suspicious {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .caution {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .safe-looking {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .invalid {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        ul {
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .note {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🛡️ URL Safety Checker</h1>
+    <p>Check suspicious links before clicking them.</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Check a URL</h2>
+
+        <form action="/check-url" method="POST">
+            <label for="url">Enter website URL</label>
+
+            <input
+                type="text"
+                id="url"
+                name="url"
+                placeholder="https://example.com"
+                value="<%= submittedURL %>"
+                maxlength="4096"
+                required
+            >
+
+            <button type="submit">Check URL</button>
+        </form>
+    </div>
+
+    <% if (result) { %>
+
+        <div class="card">
+            <h2>Scan Results</h2>
+
+            <% let cssClass = "invalid"; %>
+
+            <% if (result.status === "HIGH RISK") { %>
+                <% cssClass = "high-risk"; %>
+            <% } else if (result.status === "SUSPICIOUS") { %>
+                <% cssClass = "suspicious"; %>
+            <% } else if (result.status === "CAUTION") { %>
+                <% cssClass = "caution"; %>
+            <% } else if (
+                result.status === "NO OBVIOUS WARNING SIGNS"
+            ) { %>
+                <% cssClass = "safe-looking"; %>
+            <% } %>
+
+            <div class="status <%= cssClass %>">
+                Status: <%= result.status %>
+            </div>
+
+            <p>
+                <strong>Risk score:</strong>
+                <%= result.score %>
+            </p>
+
+            <% if (result.hostname) { %>
+                <p>
+                    <strong>Hostname:</strong>
+                    <%= result.hostname %>
+                </p>
+            <% } %>
+
+            <% if (result.protocol) { %>
+                <p>
+                    <strong>Protocol:</strong>
+                    <%= result.protocol %>
+                </p>
+            <% } %>
+
+            <h3>Detected indicators</h3>
+
+            <ul>
+                <% result.findings.forEach(function(item) { %>
+                    <li><%= item %></li>
+                <% }); %>
+            </ul>
+
+            <p class="note">
+                <%= result.disclaimer ||
+                    "Results are based on URL validation rules." %>
+            </p>
+        </div>
+
+    <% } %>
+
+    <div class="card">
+        <h2>How it works</h2>
+        <p>✓ Checks URL format and protocol.</p>
+        <p>✓ Looks for suspicious domain patterns.</p>
+        <p>✓ Detects certain redirect and download warnings.</p>
+        <p>✓ Displays a risk score based on configured rules.</p>
+        <p class="note">
+            This version uses heuristic checks only. It does not
+            contact a threat-intelligence service or guarantee safety.
+        </p>
+    </div>
+
+</div>
+
+<footer>
+    URL Safety Checker | Educational Project
+</footer>
+
+</body>
+</html>
